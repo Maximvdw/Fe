@@ -7,8 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.melonbrew.fe.Metrics.Graph;
-import org.melonbrew.fe.Metrics.Plotter;
 import org.melonbrew.fe.database.Account;
 import org.melonbrew.fe.database.Database;
 import org.melonbrew.fe.database.databases.MongoDB;
@@ -17,7 +15,6 @@ import org.melonbrew.fe.database.databases.SQLiteDB;
 import org.melonbrew.fe.listeners.FePlayerListener;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,9 +88,7 @@ public class Fe extends JavaPlugin {
         new FePlayerListener(this);
 
         setupVault();
-
-        loadMetrics();
-
+        
         if (getConfig().getBoolean("updatecheck")) {
             getServer().getScheduler().runTaskAsynchronously(this, new UpdateCheck(this));
         }
@@ -308,46 +303,6 @@ public class Fe extends JavaPlugin {
         }
 
         return message;
-    }
-
-    private void loadMetrics() {
-        try {
-            Metrics metrics = new Metrics(this);
-
-            Graph databaseGraph = metrics.createGraph("Database Engine");
-
-            databaseGraph.addPlotter(new Plotter(getFeDatabase().getName()) {
-                public int getValue() {
-                    return 1;
-                }
-            });
-
-            Graph defaultHoldings = metrics.createGraph("Default Holdings");
-
-            defaultHoldings.addPlotter(new Plotter(getAPI().getDefaultHoldings() + "") {
-                public int getValue() {
-                    return 1;
-                }
-            });
-
-            Graph maxHoldings = metrics.createGraph("Max Holdings");
-
-            String maxHolding = getAPI().getMaxHoldings() + "";
-
-            if (getAPI().getMaxHoldings() == -1) {
-                maxHolding = "Unlimited";
-            }
-
-            maxHoldings.addPlotter(new Plotter(maxHolding) {
-                public int getValue() {
-                    return 1;
-                }
-            });
-
-            metrics.start();
-        } catch (IOException e) {
-
-        }
     }
 
     private void setupVault() {
